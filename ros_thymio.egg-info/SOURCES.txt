@@ -1,0 +1,16 @@
+LICENSE
+package.xml
+setup.cfg
+setup.py
+resource/ros_thymio
+ros_thymio/__init__.py
+ros_thymio/subscriber_member_function.py
+ros_thymio.egg-info/PKG-INFO
+ros_thymio.egg-info/SOURCES.txt
+ros_thymio.egg-info/dependency_links.txt
+ros_thymio.egg-info/requires.txt
+ros_thymio.egg-info/top_level.txt
+ros_thymio.egg-info/zip-safe
+test/test_copyright.py
+test/test_flake8.py
+test/test_pep257.py

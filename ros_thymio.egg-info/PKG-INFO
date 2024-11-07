@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: ros-thymio
+Version: 0.0.0
+Summary: TODO: Package description
+Maintainer: sindiso
+Maintainer-email: mkhsin035@myuct.ac.za
+License: Apache-2.0
+License-File: LICENSE
+Requires-Dist: setuptools
