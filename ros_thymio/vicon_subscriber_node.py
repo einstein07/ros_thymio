@@ -3,47 +3,43 @@ from rclpy.node import Node
 from message_filters import Subscriber, TimeSynchronizer
 from vicon_receiver.msg import Position
 from vicon_receiver.msg import PositionList
-
+from thymiodirect import Thymio
+from thymiodirect.thymio_serial_ports import ThymioSerialPort
+import sys
 
 class ViconSubscriber(Node):
 
     def __init__(self):
         super().__init__('vicon_subscriber')
+
+        """Thymio connection variable"""
+        self.robotConnection = None
         self.declare_parameter('my_id', rclpy.Parameter.Type.STRING)
+        self.declare_parameter('default_topic', rclpy.Parameter.Type.STRING)
+        self.my_id = self.get_parameter('my_id')
+        self.default_topic = self.get_parameter('default_topic')
         self.subscription = self.create_subscription(
             PositionList,
-            '/vicon/default/data',
+            self.default_topic,
             self.listener_callback,
             10)
+        print('Sucessfully subscrive to %s' %self.default_topic)
 
+        self.connect_to_thymio()
 
-        """self.declare_parameter('list_of_topics', rclpy.Parameter.Type.STRING_ARRAY)
-        self.id, self.topic_list = self.configure_params()
-        self.subscriptions = []
-        for topic in self.topic_list:
-            self.subscriptions.append(
-                                        Subscriber(
-                                        self,
-                                        Position,
-                                        topic
-                                        )
-            )
-            self.get_logger().info('successfully subscribed to topic "%s"' % topic)
-        self.timer = self.create_timer(1, self.TimerCallback)
-        queue_size = 10
-        self.sync = TimeSynchronizer(self.subscriptions, queue_size)
-        self.sync.registerCallback(self.SyncCallback)
+    def connect_to_thymio(self):
+        try:
+            port = Connection.serial_default_port()
+            th = Thymio(serial_port=port, on_connect=lambda node_id: print(f' Thymio {node_id} is connected'))
+            th.connect()
+            robot = th[th.first_node()]
+            time.sleep(1)
+            self.robotConnection = robot
 
-    def configure_params(self):
-        id = self.get_parameter('my_id')
-        topic_list = self.get_parameter('list_of_topics')
-        self.get_logger().info("my id: %s, topic-list[]: %s" %
-                               (str(id.value),
-                                str(topic_list.value),))
+        except Exception as err:
+            print(err)
+            sys.exit("Could not connect to Thymio! Exiting...")
 
-        return id, topic_list"""
-
-    #def SyncCallback(self, msg):
 
 
     def listener_callback(self, msg):
