@@ -3,9 +3,9 @@ ros_thymio:
     my_id: "thymio1"
     default_topic: "vicon/default/data"
     target_distance: 75.5
-    max_speed: 10
-    gain: 1000
-    exponent: 2
+    max_speed: 10.0
+    gain: 1000.0
+    exponent: 2.0
     hard_turn_on_angle_threshold: 90.0
     soft_turn_on_angle_threshold: 70.0
     no_turn_angle_threshold: 10.0
