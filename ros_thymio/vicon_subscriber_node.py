@@ -5,8 +5,8 @@ from rclpy.node import Node
 from message_filters import Subscriber, TimeSynchronizer
 from vicon_receiver.msg import Position
 from vicon_receiver.msg import PositionList
-from thymiodirect import Thymio
-from thymiodirect.thymio_serial_ports import ThymioSerialPort
+import thymiodirect# import Thymio
+#from thymiodirect.thymio_serial_ports import ThymioSerialPort
 import pygame
 import sys
 
