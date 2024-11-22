@@ -113,14 +113,13 @@ class ViconSubscriber(Node):
                     ))
 
                     # sum to accumulator
-                    vec = pygame.math.Vector2()
-                    angle_to_neighbor = self.angle_between_points_in_radians(
+                    angle_to_neighbor = self.angle_between_points_in_degrees(
                             (self.my_position.x_trans, self.my_position.y_trans),
                             (msg.positions[i].x_trans, msg.positions[i].y_trans)
                         )
                     print('LJ Force: %f' %LJ_force)
                     print('Angle to neighbor: %f' % angle_to_neighbor)
-                    c_accum += vec.from_polar(LJ_force, angle_to_neighbor)
+                    c_accum += pygame.math.Vector2.from_polar((LJ_force, angle_to_neighbor))
             if msg.n - 1 > 0:
                 # Divide the accumulator by the number of neighboring agents
                 c_accum /= (msg.n-1)
@@ -184,7 +183,7 @@ class ViconSubscriber(Node):
         self.robotConnection['motor.left.target'] = left_wheel_speed
         self.robotConnection['motor.right.target'] = right_wheel_speed
 
-    def angle_between_points_in_radians(self, point1, point2):
+    def angle_between_points_in_degrees(self, point1, point2):
         # Create vectors from the points
         vector1 = pygame.math.Vector2(point1)
         vector2 = pygame.math.Vector2(point2)
@@ -193,8 +192,8 @@ class ViconSubscriber(Node):
         angle_degrees = vector1.angle_to(vector2)
 
         # Convert degrees to radians
-        angle_radians = math.radians(angle_degrees)
-        return angle_radians
+        #angle_radians = math.radians(angle_degrees)
+        return angle_degrees #angle_radians
 
     def signed_normalize_angle(self, vector):
         # Use the angle_to method to get the angle between this vector and the positive x-axis (in degrees)
