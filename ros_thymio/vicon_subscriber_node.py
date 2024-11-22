@@ -118,10 +118,9 @@ class ViconSubscriber(Node):
                             (self.my_position.x_trans, self.my_position.y_trans),
                             (msg.positions[i].x_trans, msg.positions[i].y_trans)
                         )
-                    c_accum += vec.from_polar(
-                        LJ_force,
-                        angle_to_neighbor
-                    )
+                    print('LJ Force: %f' %LJ_force)
+                    print('Angle to neighbor: %f' % angle_to_neighbor)
+                    c_accum += vec.from_polar(LJ_force, angle_to_neighbor)
             if msg.n - 1 > 0:
                 # Divide the accumulator by the number of neighboring agents
                 c_accum /= (msg.n-1)
