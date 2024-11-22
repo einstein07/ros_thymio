@@ -53,11 +53,11 @@ class ViconSubscriber(Node):
         #Exponent of the Lennard - Jones potential
         self.exponent = self.get_parameter('exponent').get_parameter_value().double_value
         print('exponent: %f' % self.exponent)
-        self.hard_turn_on_angle_threshold = self.get_parameter('hard_turn_on_angle_threshold')
+        self.hard_turn_on_angle_threshold = self.get_parameter('hard_turn_on_angle_threshold').get_parameter_value().double_value
         print('hard tun on threshold: %f' % self.hard_turn_on_angle_threshold)
-        self.soft_turn_on_angle_threshold = self.get_parameter('soft_turn_on_angle_threshold')
+        self.soft_turn_on_angle_threshold = self.get_parameter('soft_turn_on_angle_threshold').get_parameter_value().double_value
         print('soft turn on threshold: %f' % self.soft_turn_on_angle_threshold)
-        self.no_turn_angle_threshold = self.get_parameter('no_turn_angle_threshold')
+        self.no_turn_angle_threshold = self.get_parameter('no_turn_angle_threshold').get_parameter_value().double_value
         print('no turn on threshold: %f' % self.no_turn_angle_threshold)
         self.subscription = self.create_subscription(
             PositionList,
