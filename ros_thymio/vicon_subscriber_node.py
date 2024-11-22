@@ -140,7 +140,7 @@ class ViconSubscriber(Node):
         # Get the length of the heading vector
         heading_length = c_heading.length()
         # Clamp the speed so that it's not greater than MaxSpeed
-        base_angular_wheel_speed = min(heading_length, self.max_speed)
+        base_angular_wheel_speed = max(heading_length, self.max_speed)
 
         """State transition logic"""
         if self.turning_mechanism == ViconSubscriber.HARD_TURN:
