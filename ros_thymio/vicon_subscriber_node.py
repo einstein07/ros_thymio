@@ -36,6 +36,7 @@ class ViconSubscriber(Node):
         self.my_id = self.get_parameter('my_id')
         """This is the topic that publishes a list of positions for all objects in the arena"""
         self.default_topic = self.get_parameter('default_topic')
+        print('default topic: %s' %self.default_topic)
         """ The following variables are used as parameters for
             flocking interaction. You can set their value
             in the configuration file """
