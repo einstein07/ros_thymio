@@ -5,8 +5,8 @@ from rclpy.node import Node
 from message_filters import Subscriber, TimeSynchronizer
 from vicon_receiver.msg import Position
 from vicon_receiver.msg import PositionList
-import thymiodirect# import Thymio
-#from thymiodirect.thymio_serial_ports import ThymioSerialPort
+from thymiodirect import Connection
+from thymiodirect import Thymio
 import pygame
 import sys
 
@@ -64,10 +64,10 @@ class ViconSubscriber(Node):
             self.default_topic,
             self.listener_callback,
             10)
-        print('Sucessfully subscrive to %s' %self.default_topic)
+        print('Subscription created to %s' %self.default_topic)
 
         self.connect_to_thymio()
-        self.turning_mechanism = 'NO_TURN'
+        self.turning_mechanism = ViconSubscriber.NO_TURN
 
     def connect_to_thymio(self):
         try:
