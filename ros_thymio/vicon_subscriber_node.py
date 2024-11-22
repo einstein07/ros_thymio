@@ -182,8 +182,8 @@ class ViconSubscriber(Node):
         else:
             left_wheel_speed = speed2
             right_wheel_speed = speed1
-        self.robotConnection['motor.left.target'] = left_wheel_speed
-        self.robotConnection['motor.right.target'] = right_wheel_speed
+        self.robotConnection['motor.left.target'] = int(left_wheel_speed)
+        self.robotConnection['motor.right.target'] = int(right_wheel_speed)
 
     def angle_between_points_in_degrees(self, point1, point2):
         # Create vectors from the points
