@@ -183,8 +183,8 @@ class ViconSubscriber(Node):
         else:
             left_wheel_speed = speed2
             right_wheel_speed = speed1
-        print('setting left wheel to: %s speed' %int(left_wheel_speed) )
-        print('setting right wheel to: %s speed' % int(right_wheel_speed))
+        print('setting left wheel to: %s speed actual value: %f' %(int(left_wheel_speed), left_wheel_speed) )
+        print('setting right wheel to: %s speed actual value: %f' %(int(right_wheel_speed), right_wheel_speed))
         self.robotConnection['motor.left.target'] = int(left_wheel_speed)
         self.robotConnection['motor.right.target'] = int(right_wheel_speed)
 
