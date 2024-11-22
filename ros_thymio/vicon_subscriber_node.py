@@ -33,28 +33,32 @@ class ViconSubscriber(Node):
 
         self.my_position = None
         """This id must match the name used in vicon for the specific subject"""
-        self.my_id = self.get_parameter('my_id')
+        self.my_id = self.get_parameter('my_id').get_parameter_value().string_value
         print('my id: %s' % self.my_id)
         """This is the topic that publishes a list of positions for all objects in the arena"""
-        self.default_topic = self.get_parameter('default_topic')
+        self.default_topic = self.get_parameter('default_topic').get_parameter_value().string_value
         print('default topic: %s' %self.default_topic)
         """ The following variables are used as parameters for
             flocking interaction. You can set their value
             in the configuration file """
         #Target robot - robot distance in cm
-        self.target_distance = self.get_parameter('target_distance')
+        self.target_distance = self.get_parameter('target_distance').get_parameter_value().double_value
         print('target distance: %f' % self.target_distance)
         # Maximum robot speed
-        self.max_speed = self.get_parameter('max_speed')
+        self.max_speed = self.get_parameter('max_speed').get_parameter_value().double_value
+        print('max speed: %f' % self.max_speed)
         #Gain of the Lennard - Jones potential
-        self.gain = self.get_parameter('gain')
+        self.gain = self.get_parameter('gain').get_parameter_value().double_value
+        print('target distance: %f' % self.gain)
         #Exponent of the Lennard - Jones potential
-        self.exponent = self.get_parameter('exponent')
-
+        self.exponent = self.get_parameter('exponent').get_parameter_value().double_value
+        print('exponent: %f' % self.exponent)
         self.hard_turn_on_angle_threshold = self.get_parameter('hard_turn_on_angle_threshold')
+        print('hard tun on threshold: %f' % self.hard_turn_on_angle_threshold)
         self.soft_turn_on_angle_threshold = self.get_parameter('soft_turn_on_angle_threshold')
+        print('soft turn on threshold: %f' % self.soft_turn_on_angle_threshold)
         self.no_turn_angle_threshold = self.get_parameter('no_turn_angle_threshold')
-
+        print('no turn on threshold: %f' % self.no_turn_angle_threshold)
         self.subscription = self.create_subscription(
             PositionList,
             self.default_topic,
