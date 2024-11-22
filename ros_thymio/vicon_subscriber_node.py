@@ -34,6 +34,7 @@ class ViconSubscriber(Node):
         self.my_position = None
         """This id must match the name used in vicon for the specific subject"""
         self.my_id = self.get_parameter('my_id')
+        print('my id: %s' % self.my_id)
         """This is the topic that publishes a list of positions for all objects in the arena"""
         self.default_topic = self.get_parameter('default_topic')
         print('default topic: %s' %self.default_topic)
@@ -42,6 +43,7 @@ class ViconSubscriber(Node):
             in the configuration file """
         #Target robot - robot distance in cm
         self.target_distance = self.get_parameter('target_distance')
+        print('target distance: %f' % self.target_distance)
         # Maximum robot speed
         self.max_speed = self.get_parameter('max_speed')
         #Gain of the Lennard - Jones potential
