@@ -7,6 +7,7 @@ from vicon_receiver.msg import Position
 from vicon_receiver.msg import PositionList
 from thymiodirect import Connection
 from thymiodirect import Thymio
+import time
 import pygame
 import sys
 
