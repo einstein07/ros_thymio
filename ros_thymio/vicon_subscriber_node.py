@@ -22,6 +22,8 @@ class ViconSubscriber(Node):
         self.declare_parameter('my_id', rclpy.Parameter.Type.STRING)
         self.declare_parameter('default_topic', rclpy.Parameter.Type.STRING)
         self.declare_parameter('target_distance', rclpy.Parameter.Type.DOUBLE)
+        self.declare_parameter('target_x', rclpy.Parameter.Type.DOUBLE)
+        self.declare_parameter('target_y', rclpy.Parameter.Type.DOUBLE)
         self.declare_parameter('max_speed', rclpy.Parameter.Type.DOUBLE)
         self.declare_parameter('gain', rclpy.Parameter.Type.DOUBLE)
         self.declare_parameter('exponent', rclpy.Parameter.Type.DOUBLE)
@@ -45,6 +47,12 @@ class ViconSubscriber(Node):
         #Target robot - robot distance in cm
         self.target_distance = self.get_parameter('target_distance').get_parameter_value().double_value
         print('target distance: %f' % self.target_distance)
+        # Target final position-x
+        self.target_x = self.get_parameter('target_x').get_parameter_value().double_value
+        print('target x: %f' % self.target_x)
+        # Target final position-y
+        self.target_y = self.get_parameter('target_y').get_parameter_value().double_value
+        print('target y: %f' % self.target_y)
         # Maximum robot speed
         self.max_speed = self.get_parameter('max_speed').get_parameter_value().double_value
         print('max speed: %f' % self.max_speed)
@@ -91,11 +99,33 @@ class ViconSubscriber(Node):
             #self.get_logger().info('subject "%s" with segment %s:' %(msg.positions[i].subject_name, msg.positions[i].segment_name))
             #self.get_logger().info('I heard translation in x, y, z: "%f", "%f", "%f"' % (msg.positions[i].x_trans, msg.positions[i].y_trans, msg.positions[i].z_trans))
             #self.get_logger().info('I heard rotation in x, y, z, w: "%f", "%f", "%f", "%f": ' % (msg.positions[i].x_rot, msg.positions[i].y_rot, msg.positions[i].z_rot, msg.positions[i].w))
-        self.set_wheel_speed_from_vectora(self.flocking_vector(msg))
+        self.set_wheel_speed_from_vectora(self.flocking_vector(msg) + self.vector_to_target())
 
     def generalized_lennard_jones(self, f_distance):
         f_normal_distance_exp = pow(self.target_distance/f_distance, self.exponent)
         return -self.gain / f_distance * (f_normal_distance_exp * f_normal_distance_exp - f_normal_distance_exp)
+
+    def vector_to_target(self):
+        c_accum = pygame.math.Vector2()
+        # sum to accumulator
+        dist_to_target = math.dist(
+                        [self.my_position.x_trans, self.my_position.y_trans],
+                        [self.target_x, self.target_y]
+                    )
+        angle_to_target = self.angle_between_points_in_degrees(
+            (self.my_position.x_trans, self.my_position.y_trans),
+            (self.target_x, self.target_y)
+        )
+        # print('LJ Force: %f' %LJ_force)
+        # print('Angle to neighbor: %f' % angle_to_neighbor)
+        c_accum += pygame.math.Vector2.from_polar((dist_to_target, angle_to_target))
+
+        if c_accum.length() > 0:
+            c_accum.normalize()
+            c_accum *= 0.25 * self.max_speed
+
+        print('vector to target position: %f' %c_accum.length())
+        return c_accum
 
     def flocking_vector(self, msg):
 
@@ -128,6 +158,7 @@ class ViconSubscriber(Node):
                 if c_accum.length() > self.max_speed:
                     c_accum.normalize()
                     c_accum *= self.max_speed;
+                print('flocking vector magnitude: %f' %c_accum.length())
                 return c_accum;
             else:
                 return pygame.math.Vector2()
@@ -140,7 +171,7 @@ class ViconSubscriber(Node):
         # Get the length of the heading vector
         heading_length = c_heading.length()
         # Clamp the speed so that it's not greater than MaxSpeed
-        base_angular_wheel_speed = max(heading_length, self.max_speed)
+        base_angular_wheel_speed = min(heading_length, self.max_speed)
 
         """State transition logic"""
         if self.turning_mechanism == ViconSubscriber.HARD_TURN:
