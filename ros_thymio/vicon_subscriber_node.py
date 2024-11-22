@@ -157,7 +157,8 @@ class ViconSubscriber(Node):
                 self.turning_mechanism = ViconSubscriber.SOFT_TURN
 
         """Wheel speeds based on current turning states"""
-        speed1, speed2 = 0
+        speed1 = 0
+        speed2 = 0
         if self.turning_mechanism == ViconSubscriber.NO_TURN:
             """Go straight"""
             speed1 = base_angular_wheel_speed
@@ -167,12 +168,13 @@ class ViconSubscriber(Node):
             speed_factor = self.hard_turn_on_angle_threshold - math.fabs(heading_angle) / self.hard_turn_on_angle_threshold
             speed1 = base_angular_wheel_speed - base_angular_wheel_speed * (1 - speed_factor)
             speed2 = base_angular_wheel_speed + base_angular_wheel_speed * (1 - speed_factor)
-        elif ~self.turning_mechanism == ViconSubscriber.HARD_TURN:
+        elif self.turning_mechanism == ViconSubscriber.HARD_TURN:
             speed1 = - self.max_speed
             speed2 = self.max_speed
 
         """ Apply the calculated speeds to the appropriate wheels"""
-        left_wheel_speed, right_wheel_speed = 0
+        left_wheel_speed = 0
+        right_wheel_speed = 0
         if heading_angle > 0:
             # Turn left
             left_wheel_speed = speed1
