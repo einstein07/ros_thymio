@@ -121,8 +121,9 @@ class ViconSubscriber(Node):
             (self.mm_to_cm(self.my_position.x_trans), self.mm_to_cm(self.my_position.y_trans)),
             (self.mm_to_cm(self.target_x, self.target_y))
         )
+        print('my current position x: %f y: %f' %(self.mm_to_cm(self.my_position.x_trans), self.mm_to_cm(self.my_position.y_trans)))
         print('Distance to target: %f' %dist_to_target)
-        print('Angle to neighbor: %f' % angle_to_target)
+        print('Angle to target: %f' % angle_to_target)
         c_accum += pygame.math.Vector2.from_polar((dist_to_target, angle_to_target))
 
         if c_accum.length() > 0:
