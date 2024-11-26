@@ -101,7 +101,7 @@ class ViconSubscriber(Node):
                 #self.get_logger().info('subject "%s" with segment %s:' %(msg.positions[i].subject_name, msg.positions[i].segment_name))
                 #self.get_logger().info('I heard translation in x, y, z: "%f", "%f", "%f"' % (msg.positions[i].x_trans, msg.positions[i].y_trans, msg.positions[i].z_trans))
                 #self.get_logger().info('I heard rotation in x, y, z, w: "%f", "%f", "%f", "%f": ' % (msg.positions[i].x_rot, msg.positions[i].y_rot, msg.positions[i].z_rot, msg.positions[i].w))
-            self.set_wheel_speed_from_vectora(self.flocking_vector(msg) + self.vector_to_target())
+            self.set_wheel_speed_from_vectora(self.vector_to_target())#self.flocking_vector(msg) + self.vector_to_target())
             self.timer_ = 0
         else:
             self.timer_ = self.timer_ + 1
