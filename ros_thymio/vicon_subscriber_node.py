@@ -117,7 +117,7 @@ class ViconSubscriber(Node):
             (self.target_x, self.target_y)
         )
         # print('LJ Force: %f' %LJ_force)
-        # print('Angle to neighbor: %f' % angle_to_neighbor)
+        print('Angle to neighbor: %f' % angle_to_neighbor)
         c_accum += pygame.math.Vector2.from_polar((dist_to_target, angle_to_target))
 
         if c_accum.length() > 0:
