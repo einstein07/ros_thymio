@@ -77,6 +77,7 @@ class ViconSubscriber(Node):
 
         self.connect_to_thymio()
         self.turning_mechanism = ViconSubscriber.NO_TURN
+        self.timer_ = 0
 
     def connect_to_thymio(self):
         try:
@@ -92,14 +93,18 @@ class ViconSubscriber(Node):
             sys.exit("Could not connect to Thymio! Exiting...")
 
     def listener_callback(self, msg):
-        print('.')
-        for i in range(msg.n):
-            if msg.positions[i].subject_name == self.my_id:
-                self.my_position = msg.positions[i]
-            #self.get_logger().info('subject "%s" with segment %s:' %(msg.positions[i].subject_name, msg.positions[i].segment_name))
-            #self.get_logger().info('I heard translation in x, y, z: "%f", "%f", "%f"' % (msg.positions[i].x_trans, msg.positions[i].y_trans, msg.positions[i].z_trans))
-            #self.get_logger().info('I heard rotation in x, y, z, w: "%f", "%f", "%f", "%f": ' % (msg.positions[i].x_rot, msg.positions[i].y_rot, msg.positions[i].z_rot, msg.positions[i].w))
-        self.set_wheel_speed_from_vectora(self.flocking_vector(msg) + self.vector_to_target())
+        if self.timer_ % 60 == 0:
+            print('.')
+            for i in range(msg.n):
+                if msg.positions[i].subject_name == self.my_id:
+                    self.my_position = msg.positions[i]
+                #self.get_logger().info('subject "%s" with segment %s:' %(msg.positions[i].subject_name, msg.positions[i].segment_name))
+                #self.get_logger().info('I heard translation in x, y, z: "%f", "%f", "%f"' % (msg.positions[i].x_trans, msg.positions[i].y_trans, msg.positions[i].z_trans))
+                #self.get_logger().info('I heard rotation in x, y, z, w: "%f", "%f", "%f", "%f": ' % (msg.positions[i].x_rot, msg.positions[i].y_rot, msg.positions[i].z_rot, msg.positions[i].w))
+            self.set_wheel_speed_from_vectora(self.flocking_vector(msg) + self.vector_to_target())
+            self.timer_ = 0
+        else:
+            self.timer_ = self.timer_ + 1
 
     def generalized_lennard_jones(self, f_distance):
         f_normal_distance_exp = pow(self.target_distance/f_distance, self.exponent)
@@ -116,8 +121,8 @@ class ViconSubscriber(Node):
             (self.my_position.x_trans, self.my_position.y_trans),
             (self.target_x, self.target_y)
         )
-        # print('LJ Force: %f' %LJ_force)
-        print('Angle to neighbor: %f' % angle_to_neighbor)
+        print('Distance to target: %f' %dist_to_target)
+        print('Angle to neighbor: %f' % angle_to_target)
         c_accum += pygame.math.Vector2.from_polar((dist_to_target, angle_to_target))
 
         if c_accum.length() > 0:
@@ -148,8 +153,8 @@ class ViconSubscriber(Node):
                             (self.my_position.x_trans, self.my_position.y_trans),
                             (msg.positions[i].x_trans, msg.positions[i].y_trans)
                         )
-                    #print('LJ Force: %f' %LJ_force)
-                    #print('Angle to neighbor: %f' % angle_to_neighbor)
+                    print('LJ Force: %f' %LJ_force)
+                    print('Angle to neighbor: %f' % angle_to_neighbor)
                     c_accum += pygame.math.Vector2.from_polar((LJ_force, angle_to_neighbor))
             if msg.n - 1 > 0:
                 # Divide the accumulator by the number of neighboring agents
