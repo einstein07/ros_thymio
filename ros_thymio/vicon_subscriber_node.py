@@ -119,7 +119,7 @@ class ViconSubscriber(Node):
                     )
         angle_to_target = self.angle_between_points_in_degrees(
             (self.mm_to_cm(self.my_position.x_trans), self.mm_to_cm(self.my_position.y_trans)),
-            (self.mm_to_cm(self.target_x, self.target_y))
+            (self.mm_to_cm(self.target_x), self.mm_to_cm(self.target_y))
         )
         print('my current position x: %f y: %f' %(self.mm_to_cm(self.my_position.x_trans), self.mm_to_cm(self.my_position.y_trans)))
         print('Distance to target: %f' %dist_to_target)
