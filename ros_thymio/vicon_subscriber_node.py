@@ -114,12 +114,12 @@ class ViconSubscriber(Node):
         c_accum = pygame.math.Vector2()
         # sum to accumulator
         dist_to_target = math.dist(
-                        [self.my_position.x_trans, self.my_position.y_trans],
-                        [self.target_x, self.target_y]
+                        [self.mm_to_cm(self.my_position.x_trans), self.mm_to_cm(self.my_position.y_trans)],
+                        [self.mm_to_cm(self.target_x), self.mm_to_cm(self.target_y)]
                     )
         angle_to_target = self.angle_between_points_in_degrees(
-            (self.my_position.x_trans, self.my_position.y_trans),
-            (self.target_x, self.target_y)
+            (self.mm_to_cm(self.my_position.x_trans), self.mm_to_cm(self.my_position.y_trans)),
+            (self.mm_to_cm(self.target_x, self.target_y))
         )
         print('Distance to target: %f' %dist_to_target)
         print('Angle to neighbor: %f' % angle_to_target)
@@ -144,14 +144,14 @@ class ViconSubscriber(Node):
                         Sum such vector to the accumulator"""
                     # Calculate LJ
                     LJ_force = self.generalized_lennard_jones(math.dist(
-                        [self.my_position.x_trans, self.my_position.y_trans],
-                        [msg.positions[i].x_trans, msg.positions[i].y_trans]
+                        [self.mm_to_cm(self.my_position.x_trans), self.mm_to_cm(self.my_position.y_trans)],
+                        [self.mm_to_cm(msg.positions[i].x_trans), self.mm_to_cm(msg.positions[i].y_trans)]
                     ))
 
                     # sum to accumulator
                     angle_to_neighbor = self.angle_between_points_in_degrees(
-                            (self.my_position.x_trans, self.my_position.y_trans),
-                            (msg.positions[i].x_trans, msg.positions[i].y_trans)
+                            (self.mm_to_cm(self.my_position.x_trans), self.mm_to_cm(self.my_position.y_trans)),
+                            (self.mm_to_cm(msg.positions[i].x_trans), self.mm_to_cm(msg.positions[i].y_trans))
                         )
                     print('LJ Force: %f' %LJ_force)
                     print('Angle to neighbor: %f' % angle_to_neighbor)
@@ -244,6 +244,9 @@ class ViconSubscriber(Node):
         angle_radians = math.radians(angle_degrees)
 
         return angle_radians
+
+    def mm_to_cm(self, dist):
+        return dist * 0.1
 
 def main(args=None):
     rclpy.init(args=args)
