@@ -191,7 +191,7 @@ class ViconSubscriber(Node):
         return (distance*100), desired_angle
 
     def set_wheel_speed_from_vectora(self, mag, angle):
-        print('vurrent turning mechanism: %f' %self.turning_mechanism)
+        print('vurrent turning mechanism: %s' %self.turning_mechanism)
         # Get the heading angle
         #heading_angle = self.signed_normalize_angle(c_heading)
         heading_angle = angle
