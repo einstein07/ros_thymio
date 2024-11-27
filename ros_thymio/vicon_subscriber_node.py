@@ -186,7 +186,7 @@ class ViconSubscriber(Node):
         angle_diff = (desired_angle - self.current_yaw + np.pi) % (2 * np.pi) - np.pi
         print('current position x %f y %f current angle %f' %(self.my_position.x_trans, self.my_position.y_trans, self.current_yaw))
         print('desired angle: %f angle diff: %f' % (desired_angle, angle_diff))
-        return pygame.math.Vector2.from_polar((distance*20, angle_diff))
+        return pygame.math.Vector2.from_polar((distance*100, desired_angle))
 
     def set_wheel_speed_from_vectora(self, c_heading):
         # Get the heading angle
@@ -200,16 +200,21 @@ class ViconSubscriber(Node):
         if self.turning_mechanism == ViconSubscriber.HARD_TURN:
             if math.fabs(heading_angle) <= self.soft_turn_on_angle_threshold:
                 self.turning_mechanism = ViconSubscriber.SOFT_TURN
+                print('entering soft turn')
         if self.turning_mechanism == ViconSubscriber.SOFT_TURN:
             if math.fabs(heading_angle) > self.hard_turn_on_angle_threshold:
                 self.turning_mechanism = ViconSubscriber.HARD_TURN
+                print('entering hard turn')
             elif math.fabs(heading_angle) <= self.no_turn_angle_threshold:
                 self.turning_mechanism = ViconSubscriber.NO_TURN
+                print('entering no turn')
         if self.turning_mechanism == ViconSubscriber.NO_TURN:
             if math.fabs(heading_angle) > self.hard_turn_on_angle_threshold:
                 self.turning_mechanism = ViconSubscriber.HARD_TURN
+                print('entering hard turn')
             elif math.fabs(heading_angle) > self.no_turn_angle_threshold:
                 self.turning_mechanism = ViconSubscriber.SOFT_TURN
+                print('entering soft turn')
 
         """Wheel speeds based on current turning states"""
         speed1 = 0
