@@ -64,11 +64,11 @@ class ViconSubscriber(Node):
         #Exponent of the Lennard - Jones potential
         self.exponent = self.get_parameter('exponent').get_parameter_value().double_value
         print('exponent: %f' % self.exponent)
-        self.hard_turn_on_angle_threshold = self.get_parameter('hard_turn_on_angle_threshold').get_parameter_value().double_value
+        self.hard_turn_on_angle_threshold = math.radians(self.get_parameter('hard_turn_on_angle_threshold').get_parameter_value().double_value)
         print('hard tun on threshold: %f' % self.hard_turn_on_angle_threshold)
-        self.soft_turn_on_angle_threshold = self.get_parameter('soft_turn_on_angle_threshold').get_parameter_value().double_value
+        self.soft_turn_on_angle_threshold = math.radians(self.get_parameter('soft_turn_on_angle_threshold').get_parameter_value().double_value)
         print('soft turn on threshold: %f' % self.soft_turn_on_angle_threshold)
-        self.no_turn_angle_threshold = self.get_parameter('no_turn_angle_threshold').get_parameter_value().double_value
+        self.no_turn_angle_threshold = math.radians(self.get_parameter('no_turn_angle_threshold').get_parameter_value().double_value)
         print('no turn on threshold: %f' % self.no_turn_angle_threshold)
         self.subscription = self.create_subscription(
             PositionList,
@@ -182,7 +182,7 @@ class ViconSubscriber(Node):
         distance = math.dist(
             [self.my_position.x_trans, self.my_position.y_trans],
             [self.target_x, self.target_y])
-        desired_angle = np.arctan2(target_y - self.my_position.y_trans, target_x - self.my_position.x_trans)
+        desired_angle = np.arctan2(self.target_y - self.my_position.y_trans, self.target_x - self.my_position.x_trans)
         angle_diff = (desired_angle - self.current_yaw + np.pi) % (2 * np.pi) - np.pi
 
         return pygame.math.Vector2.from_polar((distance, angle_diff))
