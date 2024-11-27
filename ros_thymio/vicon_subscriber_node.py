@@ -186,13 +186,17 @@ class ViconSubscriber(Node):
         angle_diff = (desired_angle - self.current_yaw + np.pi) % (2 * np.pi) - np.pi
         print('current position x %f y %f current angle %f' %(self.my_position.x_trans, self.my_position.y_trans, self.current_yaw))
         print('desired angle: %f angle diff: %f' % (desired_angle, angle_diff))
-        return pygame.math.Vector2.from_polar((distance*100, desired_angle))
+        #return pygame.math.Vector2.from_polar((distance*100, desired_angle))
+        return distance*100, desired_angle
 
-    def set_wheel_speed_from_vectora(self, c_heading):
+    def set_wheel_speed_from_vectora(self, mag, angle):
+        print('vurrent turning mechanism: %f' %self.turning_mechanism)
         # Get the heading angle
-        heading_angle = self.signed_normalize_angle(c_heading)
+        #heading_angle = self.signed_normalize_angle(c_heading)
+        heading_angle = angle
         # Get the length of the heading vector
-        heading_length = c_heading.length()
+        #heading_length = c_heading.length()
+        heading_length = mag
         # Clamp the speed so that it's not greater than MaxSpeed
         base_angular_wheel_speed = min(heading_length, self.max_speed)
 
