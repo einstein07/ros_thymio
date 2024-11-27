@@ -184,8 +184,9 @@ class ViconSubscriber(Node):
             [self.target_x, self.target_y])
         desired_angle = np.arctan2(self.target_y - self.my_position.y_trans, self.target_x - self.my_position.x_trans)
         angle_diff = (desired_angle - self.current_yaw + np.pi) % (2 * np.pi) - np.pi
-
-        return pygame.math.Vector2.from_polar((distance, angle_diff))
+        print('current position x %f y %f current angle %f' %(self.my_position.x_trans, self.my_position.y_trans, self.current_yaw))
+        print('desired angle: %f angle diff: %f' % (desired_angle, angle_diff))
+        return pygame.math.Vector2.from_polar((distance*20, angle_diff))
 
     def set_wheel_speed_from_vectora(self, c_heading):
         # Get the heading angle
