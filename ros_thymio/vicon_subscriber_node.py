@@ -185,14 +185,14 @@ class ViconSubscriber(Node):
             [self.target_x, self.target_y])
         desired_angle = np.arctan2(self.target_y - self.my_position.y_trans, self.target_x - self.my_position.x_trans)
         angle_diff = (desired_angle - self.current_yaw + np.pi) % (2 * np.pi) - np.pi
-        print('current position x %f y %f current angle %f' %(self.my_position.x_trans, self.my_position.y_trans, self.current_yaw))
-        print('desired angle: %f angle diff: %f' % (desired_angle, angle_diff))
+        print('current position x %f y %f current yaw in radians %f in degrees: %f' %(self.my_position.x_trans, self.my_position.y_trans, self.current_yaw, math.degrees(self.current_yaw)))
+        print('desired angle: %f angle diff degrees: %f' % (math.degrees(desired_angle), math.degrees(angle_diff)))
         #return pygame.math.Vector2.from_polar((distance*100, desired_angle))
         return (distance*100), desired_angle
 
     def set_wheel_speed_from_vectora(self, mag, angle):
         print('current turning mechanism: %s' %self.turning_mechanism)
-        print('no turn angle %f soft-turn-on angle %f hard-turn-on angle %f' %(self.no_turn_angle_threshold, self.soft_turn_on_angle_threshold, self.hard_turn_on_angle_threshold))
+        print('no turn angle %f soft-turn-on angle %f hard-turn-on angle %f' %(math.degrees(self.no_turn_angle_threshold), math.degrees(self.soft_turn_on_angle_threshold), math.degrees(self.hard_turn_on_angle_threshold)))
 
         # Get the heading angle
         #heading_angle = self.signed_normalize_angle(c_heading)
