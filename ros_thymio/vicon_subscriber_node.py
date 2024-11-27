@@ -35,6 +35,7 @@ class ViconSubscriber(Node):
         self.robotConnection = None
 
         self.my_position = None
+        self.current_yaw = 0
         """This id must match the name used in vicon for the specific subject"""
         self.my_id = self.get_parameter('my_id').get_parameter_value().string_value
         print('my id: %s' % self.my_id)
@@ -98,10 +99,14 @@ class ViconSubscriber(Node):
             for i in range(msg.n):
                 if msg.positions[i].subject_name == self.my_id:
                     self.my_position = msg.positions[i]
+                    self.current_yaw = self.quaternion_to_yaw()
+                    break
+            self.my_position.x_trans = self.mm_to_m(self.my_position.x_trans)
+            self.my_position.y_trans = self.mm_to_m(self.my_position.y_trans)
                 #self.get_logger().info('subject "%s" with segment %s:' %(msg.positions[i].subject_name, msg.positions[i].segment_name))
                 #self.get_logger().info('I heard translation in x, y, z: "%f", "%f", "%f"' % (msg.positions[i].x_trans, msg.positions[i].y_trans, msg.positions[i].z_trans))
                 #self.get_logger().info('I heard rotation in x, y, z, w: "%f", "%f", "%f", "%f": ' % (msg.positions[i].x_rot, msg.positions[i].y_rot, msg.positions[i].z_rot, msg.positions[i].w))
-            self.set_wheel_speed_from_vectora(self.vector_to_target())#self.flocking_vector(msg) + self.vector_to_target())
+            self.set_wheel_speed_from_vectora(self.navigate_to())#self.vector_to_target())#self.flocking_vector(msg) + self.vector_to_target())
             self.timer_ = 0
         else:
             self.timer_ = self.timer_ + 1
@@ -163,13 +168,23 @@ class ViconSubscriber(Node):
                 #Clamp the length of the vector to the max speed
                 if c_accum.length() > self.max_speed:
                     c_accum.normalize()
-                    c_accum *= self.max_speed;
+                    c_accum *= self.max_speed
                 print('flocking vector magnitude: %f' %c_accum.length())
-                return c_accum;
+                return c_accum
             else:
                 return pygame.math.Vector2()
         else:
             return pygame.math.Vector2()
+
+    def navigate_to(self):
+        # Calculate distance and desired angle
+        distance = math.dist(
+            [self.my_position.x_trans, self.my_position.y_trans],
+            [self.target_x, self.target_y])
+        desired_angle = np.arctan2(target_y - self.my_position.y_trans, target_x - self.my_position.x_trans)
+        angle_diff = (desired_angle - self.current_yaw + np.pi) % (2 * np.pi) - np.pi
+
+        return pygame.math.Vector2.from_polar((distance, angle_diff))
 
     def set_wheel_speed_from_vectora(self, c_heading):
         # Get the heading angle
@@ -225,17 +240,18 @@ class ViconSubscriber(Node):
         self.robotConnection['motor.left.target'] = int(left_wheel_speed)
         self.robotConnection['motor.right.target'] = int(right_wheel_speed)
 
-    def angle_between_points_in_degrees(self, point1, point2):
+    def angle_between_points_in_radians(self, point1, point2):
         # Create vectors from the points
         vector1 = pygame.math.Vector2(point1)
         vector2 = pygame.math.Vector2(point2)
 
         # Calculate the angle in degrees
         angle_degrees = vector1.angle_to(vector2)
-
+        print('angle in %f degrees' % angle_degrees)
         # Convert degrees to radians
-        #angle_radians = math.radians(angle_degrees)
-        return angle_degrees #angle_radians
+        angle_radians = math.radians(angle_degrees)
+        print('angle in %f radians' % angle_radians)
+        return angle_radians
 
     def signed_normalize_angle(self, vector):
         # Use the angle_to method to get the angle between this vector and the positive x-axis (in degrees)
@@ -246,8 +262,13 @@ class ViconSubscriber(Node):
 
         return angle_radians
 
-    def mm_to_cm(self, dist):
-        return dist * 0.1
+    def mm_to_m(self, dist):
+        return dist * 0.001
+
+    def quaternion_to_yaw(self):
+        """Convert a quaternion (x, y, z, w) to a yaw angle (in radians)."""
+        yaw = np.arctan2(2 * (self.my_position.w * self.my_position.z_rot + self.my_position.x_rot * self.my_position.y_rot), 1 - 2 * (self.my_position.y_rot ** 2 + self.my_position.z_rot ** 2))
+        return yaw
 
 def main(args=None):
     rclpy.init(args=args)
