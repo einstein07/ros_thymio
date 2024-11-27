@@ -191,7 +191,9 @@ class ViconSubscriber(Node):
         return (distance*100), desired_angle
 
     def set_wheel_speed_from_vectora(self, mag, angle):
-        print('vurrent turning mechanism: %s' %self.turning_mechanism)
+        print('current turning mechanism: %s' %self.turning_mechanism)
+        print('no turn angle %f soft-turn-on angle %f hard-turn-on angle %f' %(self.no_turn_angle_threshold, self.soft_turn_on_angle_threshold, self.hard_turn_on_angle_threshold))
+
         # Get the heading angle
         #heading_angle = self.signed_normalize_angle(c_heading)
         heading_angle = angle
@@ -247,6 +249,7 @@ class ViconSubscriber(Node):
         else:
             left_wheel_speed = speed2
             right_wheel_speed = speed1
+        print('new turning mechanism: %s with heading angle of %f' % (self.turning_mechanism, angle))
         print('setting left wheel to: %s speed actual value: %f' %(int(left_wheel_speed), left_wheel_speed) )
         print('setting right wheel to: %s speed actual value: %f' %(int(right_wheel_speed), right_wheel_speed))
         self.robotConnection['motor.left.target'] = int(left_wheel_speed)
