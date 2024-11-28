@@ -109,7 +109,7 @@ class ViconSubscriber(Node):
                 #self.get_logger().info('I heard translation in x, y, z: "%f", "%f", "%f"' % (msg.positions[i].x_trans, msg.positions[i].y_trans, msg.positions[i].z_trans))
                 #self.get_logger().info('I heard rotation in x, y, z, w: "%f", "%f", "%f", "%f": ' % (msg.positions[i].x_rot, msg.positions[i].y_rot, msg.positions[i].z_rot, msg.positions[i].w))
             mag, angle = self.navigate_to()
-            self.set_wheel_speed_from_vector(mag, angle)#self.vector_to_target())#self.flocking_vector(msg) + self.vector_to_target())
+            self.set_wheel_speed_from_vector2(mag, angle)#self.vector_to_target())#self.flocking_vector(msg) + self.vector_to_target())
             #self.headToPosition(self.target_x, self.target_y)
             self.timer_ = 0
             print('done')
@@ -191,9 +191,9 @@ class ViconSubscriber(Node):
         print('current position x %f y %f current yaw in radians %f in degrees: %f' %(self.my_position.x_trans, self.my_position.y_trans, self.current_yaw, math.degrees(self.current_yaw)))
         print('desired angle: %f angle diff degrees: %f' % (math.degrees(desired_angle), math.degrees(angle_diff)))
         #return pygame.math.Vector2.from_polar((distance*100, desired_angle))
-        return (distance*100), angle_diff
+        return (distance*1000), angle_diff
 
-    def set_wheel_speed_from_vector(self, distance, angle_diff):
+    def set_wheel_speed_from_vector1(self, distance, angle_diff):
         """
         Set the wheel speeds based on the distance to the target and the angle difference.
 
@@ -203,7 +203,7 @@ class ViconSubscriber(Node):
         """
         # Parameters to tune for navigation behavior
         Kp_linear = 1.0  # Proportional control for linear speed (forward movement)
-        Kp_angular = 4.0  # Proportional control for angular speed (turning)
+        Kp_angular = 10.0  # Proportional control for angular speed (turning)
         min_speed = 10  # Minimum speed to avoid robot stalling
         distance_threshold = 20  # Distance threshold (mm) to consider the target "reached"
 
@@ -237,6 +237,85 @@ class ViconSubscriber(Node):
         print(f"Right wheel speed: {right_wheel_speed:.2f}")
 
         # Apply wheel speeds to the robot
+        self.robotConnection['motor.left.target'] = int(left_wheel_speed)
+        self.robotConnection['motor.right.target'] = int(right_wheel_speed)
+
+    def set_wheel_speed_from_vector2(self, mag, angle):
+        """
+        Set the wheel speeds based on the distance to the target and the angle difference,
+        while respecting the defined turning thresholds.
+
+        Parameters:
+        - mag: Distance to the target (in millimeters).
+        - angle: Difference between the desired angle and the current yaw (in radians).
+        """
+
+        # Print current turning mechanism and thresholds
+        print('Current turning mechanism: %s' % self.turning_mechanism)
+        print('No turn angle: %f° | Soft-turn-on angle: %f° | Hard-turn-on angle: %f°' % (
+            math.degrees(self.no_turn_angle_threshold),
+            math.degrees(self.soft_turn_on_angle_threshold),
+            math.degrees(self.hard_turn_on_angle_threshold)
+        ))
+
+        # Get the length of the heading vector (magnitude) and clamp the speed
+        heading_length = mag
+        base_angular_wheel_speed = min(heading_length, self.max_speed)
+
+        # State transition logic based on the angle difference (turning state machine)
+        if self.turning_mechanism == ViconSubscriber.HARD_TURN:
+            if abs(angle) <= self.soft_turn_on_angle_threshold:
+                self.turning_mechanism = ViconSubscriber.SOFT_TURN
+                print('Switching to SOFT TURN')
+
+        if self.turning_mechanism == ViconSubscriber.SOFT_TURN:
+            if abs(angle) > self.hard_turn_on_angle_threshold:
+                self.turning_mechanism = ViconSubscriber.HARD_TURN
+                print('Switching to HARD TURN')
+            elif abs(angle) <= self.no_turn_angle_threshold:
+                self.turning_mechanism = ViconSubscriber.NO_TURN
+                print('Switching to NO TURN')
+
+        if self.turning_mechanism == ViconSubscriber.NO_TURN:
+            if abs(angle) > self.hard_turn_on_angle_threshold:
+                self.turning_mechanism = ViconSubscriber.HARD_TURN
+                print('Switching to HARD TURN')
+            elif abs(angle) > self.no_turn_angle_threshold:
+                self.turning_mechanism = ViconSubscriber.SOFT_TURN
+                print('Switching to SOFT TURN')
+
+        # Wheel speeds based on the current turning mechanism
+        if self.turning_mechanism == ViconSubscriber.NO_TURN:
+            # Go straight
+            left_wheel_speed = base_angular_wheel_speed
+            right_wheel_speed = base_angular_wheel_speed
+
+        elif self.turning_mechanism == ViconSubscriber.SOFT_TURN:
+            # Adjust one wheel speed more than the other for a gentle turn
+            turn_factor = abs(angle) / self.hard_turn_on_angle_threshold
+            left_wheel_speed = base_angular_wheel_speed * (1 - turn_factor) if angle > 0 else base_angular_wheel_speed
+            right_wheel_speed = base_angular_wheel_speed * (
+                        1 + turn_factor) if angle > 0 else base_angular_wheel_speed * (1 - turn_factor)
+
+        elif self.turning_mechanism == ViconSubscriber.HARD_TURN:
+            # Perform a hard turn (one wheel goes forward, the other backward)
+            turn_speed = base_angular_wheel_speed / 2
+            if angle > 0:
+                left_wheel_speed = -turn_speed
+                right_wheel_speed = turn_speed
+            else:
+                left_wheel_speed = turn_speed
+                right_wheel_speed = -turn_speed
+
+        # Clamp wheel speeds within the allowed range
+        left_wheel_speed = np.clip(left_wheel_speed, -self.max_speed, self.max_speed)
+        right_wheel_speed = np.clip(right_wheel_speed, -self.max_speed, self.max_speed)
+
+        # Debug: Print wheel speed and angle information
+        print(f"New turning mechanism: {self.turning_mechanism} | Heading angle: {math.degrees(angle):.2f}°")
+        print(f"Setting left wheel to: {left_wheel_speed:.2f} | Right wheel to: {right_wheel_speed:.2f}")
+
+        # Apply the calculated speeds to the appropriate wheels
         self.robotConnection['motor.left.target'] = int(left_wheel_speed)
         self.robotConnection['motor.right.target'] = int(right_wheel_speed)
 
