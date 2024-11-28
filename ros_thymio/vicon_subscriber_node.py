@@ -100,6 +100,7 @@ class ViconSubscriber(Node):
             print(datetime.datetime.now())
             for i in range(msg.n):
                 if msg.positions[i].subject_name == self.my_id:
+                    print('my id %s' % self.my_id)
                     self.my_position = msg.positions[i]
                     self.current_yaw = self.quaternion_to_yaw()
                     break
