@@ -323,7 +323,7 @@ class ViconSubscriber(Node):
                 else:
                     self.robotConnection['motor.left.target'] = 75
                     self.robotConnection['motor.right.target'] = -75
-
+                print('turning')
                 """response = self.getPosition()
 
                 if (response.xcoord == -1 or response.ycoord == -1):
@@ -334,11 +334,14 @@ class ViconSubscriber(Node):
                     setHeading = 2
                 if (setHeading - 2 < self.current_yaw < setHeading + 2):
                     correctHeading = True
-
-            self.robotConnection['motor.left.target'] = 300
-            self.robotConnection['motor.right.target'] = 300
-        self.robotConnection['motor.left.target'] = 0
-        self.robotConnection['motor.right.target'] = 0
+            else:
+                self.robotConnection['motor.left.target'] = 300
+                self.robotConnection['motor.right.target'] = 300
+                print('going straight')
+        else:
+            self.robotConnection['motor.left.target'] = 0
+            self.robotConnection['motor.right.target'] = 0
+            print('arrived')
 
     def calcHeading(self, currentX, currentY, goalX, goalY):
         xToGoal = goalX - currentX
