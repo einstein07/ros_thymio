@@ -289,8 +289,8 @@ class ViconSubscriber(Node):
     def headToPosition(self, x, y):
         arrived = False
         if (not arrived):
-            response = self.getPosition()
-            """if (self.my_position.x_trans == -1 or self.my_position.y_trans == -1):
+            """response = self.getPosition()
+            if (self.my_position.x_trans == -1 or self.my_position.y_trans == -1):
                 self.timesMissed = self.timesMissed + 1
                 continue"""
 
