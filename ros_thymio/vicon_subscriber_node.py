@@ -323,12 +323,12 @@ class ViconSubscriber(Node):
 
                 if (counterClockwise < clockwise):
                     print('heading: %f current: %f' %(setHeading, self.current_yaw))
-                    self.robotConnection['motor.left.target'] = -20
-                    self.robotConnection['motor.right.target'] = 20
+                    self.robotConnection['motor.left.target'] = -75
+                    self.robotConnection['motor.right.target'] = 75
                 else:
                     print('heading: %f current: %f' % (setHeading, self.current_yaw))
-                    self.robotConnection['motor.left.target'] = 20
-                    self.robotConnection['motor.right.target'] = -20
+                    self.robotConnection['motor.left.target'] = 75
+                    self.robotConnection['motor.right.target'] = -75
                 print('turning')
                 """response = self.getPosition()
 
