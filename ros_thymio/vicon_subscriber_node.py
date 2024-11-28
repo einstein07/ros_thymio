@@ -203,14 +203,14 @@ class ViconSubscriber(Node):
         """
         # Parameters to tune for navigation behavior
         Kp_linear = 1.0  # Proportional control for linear speed (forward movement)
-        Kp_angular = 2.0  # Proportional control for angular speed (turning)
+        Kp_angular = 4.0  # Proportional control for angular speed (turning)
         min_speed = 10  # Minimum speed to avoid robot stalling
         distance_threshold = 20  # Distance threshold (mm) to consider the target "reached"
 
         # Calculate the base forward speed (linear velocity)
         # Decrease speed as the robot gets closer to the target
         base_speed = Kp_linear * distance
-        if distance < distance_threshold:
+        if distance < distance_threshold*0.001:
             base_speed = 0  # Stop if close enough to the target
 
         # Limit the forward speed to the maximum allowable speed
