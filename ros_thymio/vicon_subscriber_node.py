@@ -109,7 +109,7 @@ class ViconSubscriber(Node):
                 #self.get_logger().info('I heard translation in x, y, z: "%f", "%f", "%f"' % (msg.positions[i].x_trans, msg.positions[i].y_trans, msg.positions[i].z_trans))
                 #self.get_logger().info('I heard rotation in x, y, z, w: "%f", "%f", "%f", "%f": ' % (msg.positions[i].x_rot, msg.positions[i].y_rot, msg.positions[i].z_rot, msg.positions[i].w))
             mag, angle = self.navigate_to()
-            self.set_wheel_speed_from_vectora(mag, angle)#self.vector_to_target())#self.flocking_vector(msg) + self.vector_to_target())
+            self.set_wheel_speed_from_vector(mag, angle)#self.vector_to_target())#self.flocking_vector(msg) + self.vector_to_target())
             #self.headToPosition(self.target_x, self.target_y)
             self.timer_ = 0
             print('done')
@@ -187,11 +187,58 @@ class ViconSubscriber(Node):
             [self.my_position.x_trans, self.my_position.y_trans],
             [self.target_x, self.target_y])
         desired_angle = np.arctan2(self.target_y - self.my_position.y_trans, self.target_x - self.my_position.x_trans)
-        angle_diff = (desired_angle - self.current_yaw) #+ np.pi) % (2 * np.pi) - np.pi
+        angle_diff = (desired_angle - self.current_yaw + np.pi) % (2 * np.pi) - np.pi
         print('current position x %f y %f current yaw in radians %f in degrees: %f' %(self.my_position.x_trans, self.my_position.y_trans, self.current_yaw, math.degrees(self.current_yaw)))
         print('desired angle: %f angle diff degrees: %f' % (math.degrees(desired_angle), math.degrees(angle_diff)))
         #return pygame.math.Vector2.from_polar((distance*100, desired_angle))
         return (distance*100), angle_diff
+
+    def set_wheel_speed_from_vector(self, distance, angle_diff):
+        """
+        Set the wheel speeds based on the distance to the target and the angle difference.
+
+        Parameters:
+        - distance: Distance to the target (in millimeters).
+        - angle_diff: Difference between the desired angle and the current yaw (in radians).
+        """
+        # Parameters to tune for navigation behavior
+        Kp_linear = 1.0  # Proportional control for linear speed (forward movement)
+        Kp_angular = 2.0  # Proportional control for angular speed (turning)
+        min_speed = 10  # Minimum speed to avoid robot stalling
+        distance_threshold = 20  # Distance threshold (mm) to consider the target "reached"
+
+        # Calculate the base forward speed (linear velocity)
+        # Decrease speed as the robot gets closer to the target
+        base_speed = Kp_linear * distance
+        if distance < distance_threshold:
+            base_speed = 0  # Stop if close enough to the target
+
+        # Limit the forward speed to the maximum allowable speed
+        base_speed = np.clip(base_speed, min_speed, self.max_speed)
+
+        # Calculate the turning speed (angular velocity)
+        turn_speed = Kp_angular * angle_diff
+
+        # Limit the turning speed to the maximum allowable speed
+        turn_speed = np.clip(turn_speed, -self.max_speed, self.max_speed)
+
+        # Calculate the wheel speeds based on linear and angular velocities
+        left_wheel_speed = base_speed - turn_speed
+        right_wheel_speed = base_speed + turn_speed
+
+        # Clamp the wheel speeds to avoid exceeding maximum limits
+        left_wheel_speed = np.clip(left_wheel_speed, -self.max_speed, self.max_speed)
+        right_wheel_speed = np.clip(right_wheel_speed, -self.max_speed, self.max_speed)
+
+        # Debug information for monitoring
+        print(f"Distance to target: {distance:.2f} mm")
+        print(f"Angle difference: {math.degrees(angle_diff):.2f} degrees")
+        print(f"Left wheel speed: {left_wheel_speed:.2f}")
+        print(f"Right wheel speed: {right_wheel_speed:.2f}")
+
+        # Apply wheel speeds to the robot
+        self.robotConnection['motor.left.target'] = int(left_wheel_speed)
+        self.robotConnection['motor.right.target'] = int(right_wheel_speed)
 
     def set_wheel_speed_from_vectora(self, mag, angle):
         print('current turning mechanism: %s' %self.turning_mechanism)
