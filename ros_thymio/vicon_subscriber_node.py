@@ -344,7 +344,7 @@ class ViconSubscriber(Node):
         xToGoal = goalX - currentX
         yToGoal = goalY - currentY
 
-        angle = math.degrees(numpy.arctan2(yToGoal, xToGoal))
+        angle = math.degrees(np.arctan2(yToGoal, xToGoal))
         if(angle == 0):
             return 90
         if(0 < angle <= 90):
