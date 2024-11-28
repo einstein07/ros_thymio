@@ -187,7 +187,7 @@ class ViconSubscriber(Node):
             [self.my_position.x_trans, self.my_position.y_trans],
             [self.target_x, self.target_y])
         desired_angle = np.arctan2(self.target_y - self.my_position.y_trans, self.target_x - self.my_position.x_trans)
-        angle_diff = (desired_angle - self.current_yaw + np.pi) % (2 * np.pi) - np.pi
+        angle_diff = (desired_angle - self.current_yaw) #+ np.pi) % (2 * np.pi) - np.pi
         print('current position x %f y %f current yaw in radians %f in degrees: %f' %(self.my_position.x_trans, self.my_position.y_trans, self.current_yaw, math.degrees(self.current_yaw)))
         print('desired angle: %f angle diff degrees: %f' % (math.degrees(desired_angle), math.degrees(angle_diff)))
         #return pygame.math.Vector2.from_polar((distance*100, desired_angle))
