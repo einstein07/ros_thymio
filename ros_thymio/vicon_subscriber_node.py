@@ -288,7 +288,7 @@ class ViconSubscriber(Node):
         yaw = np.arctan2(2 * (self.my_position.w * self.my_position.z_rot + self.my_position.x_rot * self.my_position.y_rot), 1 - 2 * (self.my_position.y_rot ** 2 + self.my_position.z_rot ** 2))
         yaw_degrees = math.degrees(yaw)
         print('calculated yaw: %f' %yaw_degrees)
-        return yaw
+        return yaw_degrees
 
     def headToPosition(self, x, y):
         arrived = False
