@@ -95,7 +95,7 @@ class ViconSubscriber(Node):
             sys.exit("Could not connect to Thymio! Exiting...")
 
     def listener_callback(self, msg):
-        if self.timer_ % 60 == 0:
+        if self.timer_ % 1 == 0:
             print('.')
             for i in range(msg.n):
                 if msg.positions[i].subject_name == self.my_id:
@@ -107,8 +107,8 @@ class ViconSubscriber(Node):
                 #self.get_logger().info('subject "%s" with segment %s:' %(msg.positions[i].subject_name, msg.positions[i].segment_name))
                 #self.get_logger().info('I heard translation in x, y, z: "%f", "%f", "%f"' % (msg.positions[i].x_trans, msg.positions[i].y_trans, msg.positions[i].z_trans))
                 #self.get_logger().info('I heard rotation in x, y, z, w: "%f", "%f", "%f", "%f": ' % (msg.positions[i].x_rot, msg.positions[i].y_rot, msg.positions[i].z_rot, msg.positions[i].w))
-            mag, angle = self.navigate_to()
-            self.set_wheel_speed_from_vectora(mag, angle)#self.vector_to_target())#self.flocking_vector(msg) + self.vector_to_target())
+            #mag, angle = self.navigate_to()
+            #self.set_wheel_speed_from_vectora(mag, angle)#self.vector_to_target())#self.flocking_vector(msg) + self.vector_to_target())
             self.timer_ = 0
         else:
             self.timer_ = self.timer_ + 1
@@ -285,13 +285,81 @@ class ViconSubscriber(Node):
         yaw = np.arctan2(2 * (self.my_position.w * self.my_position.z_rot + self.my_position.x_rot * self.my_position.y_rot), 1 - 2 * (self.my_position.y_rot ** 2 + self.my_position.z_rot ** 2))
         return yaw
 
+    def headToPosition(self, x, y):
+        arrived = False
+        while (not arrived):
+            response = self.getPosition()
+            """if (self.my_position.x_trans == -1 or self.my_position.y_trans == -1):
+                self.timesMissed = self.timesMissed + 1
+                continue"""
+
+            if (x - 5 <= self.my_position.x_trans <= x + 5 and y - 5 <= self.my_position.y_trans <= y + 5):
+                arrived = True
+                continue
+
+            setHeading = self.calcHeading(self.my_position.x_trans, self.my_position.y_trans, x, y)
+            if (setHeading - 5 < self.current_yaw < setHeading + 5):
+                correctHeading = True
+            else:
+                correctHeading = False
+
+            while (not correctHeading):
+
+                """if (response.xcoord == -1):
+                    response = self.getPosition()
+                    continue"""
+
+                if (setHeading > self.current_yaw):
+                    counterClockwise = (360 - setHeading) + self.current_yaw
+                    clockwise = setHeading - self.current_yaw
+                else:
+                    counterClockwise = self.current_yaw - setHeading
+                    clockwise = (360 - self.current_yaw) + setHeading
+
+                if (counterClockwise < clockwise):
+                    self.robotConnection['motor.left.target'] = -75
+                    self.robotConnection['motor.right.target'] = 75
+                else:
+                    self.robotConnection['motor.left.target'] = 75
+                    self.robotConnection['motor.right.target'] = -75
+
+                """response = self.getPosition()
+
+                if (response.xcoord == -1 or response.ycoord == -1):
+                    self.timesMissed = self.timesMissed + 1
+                    continue"""
+
+                if (setHeading < 2):
+                    setHeading = 2
+                if (setHeading - 2 < self.current_yaw < setHeading + 2):
+                    correctHeading = True
+
+            self.robotConnection['motor.left.target'] = 300
+            self.robotConnection['motor.right.target'] = 300
+        self.robotConnection['motor.left.target'] = 0
+        self.robotConnection['motor.right.target'] = 0
+
+    def calcHeading(self, currentX, currentY, goalX, goalY):
+        xToGoal = goalX - currentX
+        yToGoal = goalY - currentY
+
+        angle = math.degrees(numpy.arctan2(yToGoal, xToGoal))
+        if(angle == 0):
+            return 90
+        if(0 < angle <= 90):
+            return 90 - angle
+        if(90 < angle <= 180):
+            return 270 + (180 - angle)
+        if(angle < 0):
+            return 90 + (abs(angle))
+
 def main(args=None):
     rclpy.init(args=args)
 
     vicon_subscriber = ViconSubscriber()
 
     rclpy.spin(vicon_subscriber)
-
+    vicon_subscriber.headToPosition(vicon_subscriber.target_x, vicon_subscriber.target_y)
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
