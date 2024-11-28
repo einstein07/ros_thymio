@@ -192,7 +192,7 @@ class ViconSubscriber(Node):
         print('current position x %f y %f current yaw in radians %f in degrees: %f' %(self.my_position.x_trans, self.my_position.y_trans, self.current_yaw, math.degrees(self.current_yaw)))
         print('desired angle: %f angle diff degrees: %f' % (math.degrees(desired_angle), math.degrees(angle_diff)))
         #return pygame.math.Vector2.from_polar((distance*100, desired_angle))
-        return (distance*500), angle_diff
+        return (distance*100), angle_diff
 
     def set_wheel_speed_from_vector1(self, distance, angle_diff):
         """
