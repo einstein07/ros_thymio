@@ -8,6 +8,7 @@ from vicon_receiver.msg import PositionList
 from thymiodirect import Connection
 from thymiodirect import Thymio
 import numpy as np
+import datetime
 import time
 import pygame
 import sys
@@ -95,8 +96,8 @@ class ViconSubscriber(Node):
             sys.exit("Could not connect to Thymio! Exiting...")
 
     def listener_callback(self, msg):
-        if self.timer_ % 1 == 0:
-            print('.')
+        if self.timer_ % 50 == 0:
+            print(datetime.datetime.now())
             for i in range(msg.n):
                 if msg.positions[i].subject_name == self.my_id:
                     self.my_position = msg.positions[i]
