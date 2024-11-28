@@ -109,6 +109,7 @@ class ViconSubscriber(Node):
                 #self.get_logger().info('I heard rotation in x, y, z, w: "%f", "%f", "%f", "%f": ' % (msg.positions[i].x_rot, msg.positions[i].y_rot, msg.positions[i].z_rot, msg.positions[i].w))
             #mag, angle = self.navigate_to()
             #self.set_wheel_speed_from_vectora(mag, angle)#self.vector_to_target())#self.flocking_vector(msg) + self.vector_to_target())
+            self.headToPosition(self.target_x, self.target_y)
             self.timer_ = 0
         else:
             self.timer_ = self.timer_ + 1
@@ -287,7 +288,7 @@ class ViconSubscriber(Node):
 
     def headToPosition(self, x, y):
         arrived = False
-        while (not arrived):
+        if (not arrived):
             response = self.getPosition()
             """if (self.my_position.x_trans == -1 or self.my_position.y_trans == -1):
                 self.timesMissed = self.timesMissed + 1
@@ -295,7 +296,7 @@ class ViconSubscriber(Node):
 
             if (x - 5 <= self.my_position.x_trans <= x + 5 and y - 5 <= self.my_position.y_trans <= y + 5):
                 arrived = True
-                continue
+                """continue"""
 
             setHeading = self.calcHeading(self.my_position.x_trans, self.my_position.y_trans, x, y)
             if (setHeading - 5 < self.current_yaw < setHeading + 5):
@@ -303,7 +304,7 @@ class ViconSubscriber(Node):
             else:
                 correctHeading = False
 
-            while (not correctHeading):
+            if (not correctHeading):
 
                 """if (response.xcoord == -1):
                     response = self.getPosition()
@@ -359,7 +360,7 @@ def main(args=None):
     vicon_subscriber = ViconSubscriber()
 
     rclpy.spin(vicon_subscriber)
-    vicon_subscriber.headToPosition(vicon_subscriber.target_x, vicon_subscriber.target_y)
+    #vicon_subscriber.headToPosition(vicon_subscriber.target_x, vicon_subscriber.target_y)
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
