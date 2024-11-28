@@ -96,7 +96,7 @@ class ViconSubscriber(Node):
             sys.exit("Could not connect to Thymio! Exiting...")
 
     def listener_callback(self, msg):
-        if self.timer_ % 50 == 0:
+        if self.timer_ % 1 == 0:
             print(datetime.datetime.now())
             for i in range(msg.n):
                 if msg.positions[i].subject_name == self.my_id:
@@ -112,6 +112,7 @@ class ViconSubscriber(Node):
             #self.set_wheel_speed_from_vectora(mag, angle)#self.vector_to_target())#self.flocking_vector(msg) + self.vector_to_target())
             self.headToPosition(self.target_x, self.target_y)
             self.timer_ = 0
+            print('done')
         else:
             self.timer_ = self.timer_ + 1
 
